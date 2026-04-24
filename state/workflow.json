@@ -1,0 +1,59 @@
+{
+  "project": "markdown-to-html-tool",
+  "current_step": "spec_writer",
+  "feedback_required": true,
+  "last_updated": "2026-04-24",
+  "steps": {
+    "spec_writer": {
+      "status": "pending",
+      "agent_config": "agents/spec_writer/",
+      "input": "specs/spec_outline.md",
+      "output": "outputs/spec.md",
+      "feedback_template": "feedback/spec_feedback.md",
+      "completed_at": null
+    },
+    "designer": {
+      "status": "pending",
+      "agent_config": "agents/designer/",
+      "input": "outputs/spec.md",
+      "output": "outputs/design.md",
+      "feedback_template": "feedback/design_feedback.md",
+      "completed_at": null
+    },
+    "implementation": {
+      "status": "pending",
+      "agent_config": "agents/implementation/",
+      "input": "outputs/design.md",
+      "output": "outputs/implementation_plan.md",
+      "feedback_template": "feedback/implementation_feedback.md",
+      "completed_at": null
+    },
+    "coding_step1": {
+      "status": "pending",
+      "agent_config": "agents/coding/",
+      "prompt": "agents/coding/step1_prompt.md",
+      "input": "outputs/implementation_plan.md",
+      "output": "outputs/code/step1/",
+      "feedback_template": null,
+      "completed_at": null
+    },
+    "coding_step2": {
+      "status": "pending",
+      "agent_config": "agents/coding/",
+      "prompt": "agents/coding/step2_prompt.md",
+      "input": "outputs/code/step1/",
+      "output": "outputs/code/step2/",
+      "feedback_template": null,
+      "completed_at": null
+    },
+    "coding_step3": {
+      "status": "pending",
+      "agent_config": "agents/coding/",
+      "prompt": "agents/coding/step3_prompt.md",
+      "input": ["outputs/code/step1/", "outputs/code/step2/"],
+      "output": "outputs/code/step3/",
+      "feedback_template": null,
+      "completed_at": null
+    }
+  }
+}
