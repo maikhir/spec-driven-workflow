@@ -21,7 +21,7 @@ Bitte bearbeite die Datei zuerst:
   - Passe die Kern-Features auf dein Projekt an
   - Entferne die Zeile mit "TEMPLATE-STATUS: unbearbeitet"
 
-Starte danach /project:workflow erneut.
+Starte danach /workflow erneut.
 ```
 
 Führe keinen weiteren Schritt aus.

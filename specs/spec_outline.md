@@ -1,4 +1,4 @@
-> **TEMPLATE-STATUS: unbearbeitet** — Ersetze den Inhalt dieser Datei mit deiner eigenen Projektbeschreibung, bevor du den Workflow startest.
+
 
 # Spec Outline: Markdown-to-HTML Tool
 

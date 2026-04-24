@@ -17,7 +17,7 @@ Jeder Agent hat eine klar abgegrenzte Aufgabe und gibt erst nach Human Feedback 
 claude
 
 # 3. Workflow starten
-/project:workflow
+/workflow
 ```
 
 Der Orchestrator prüft automatisch, ob `specs/spec_outline.md` bereits angepasst wurde —
