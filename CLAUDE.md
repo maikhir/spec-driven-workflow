@@ -1,29 +1,39 @@
 
 ## Structured Workflow Agents — Spec-Driven Model
 
-Dieses Projekt ist ein **inaktives Lerntool**, das das Spec-Driven Multi-Agent-Muster demonstriert.
-Es wird nicht automatisch ausgeführt — jeder Schritt wird manuell durch den Orchestrator angestoßen.
+Dieses Projekt ist ein **generischer Spec-Driven Multi-Agent-Workflow**.
+Er wird manuell durch den Orchestrator gesteuert — jeder Schritt wird explizit angestoßen
+und erst nach Human Feedback freigegeben.
 
 ---
 
 ## Workflow
 
-![Workflow Diagram](Bildschirmfoto%202026-04-24%20um%2012.49.46.png)
 ```
 specs/spec_outline.md
-         ↓
-  [Spec-Writer Agent]  ↔  Human Feedback
-         ↓
-   [Designer Agent]    ↔  Human Feedback
-         ↓
-[Implementation Agent] ↔  Human Feedback
-         ↓
- [Coding Agent Step 1] ↔  Human Feedback   → Markdown Parser
-         ↓
- [Coding Agent Step 2] ↔  Human Feedback   → HTML Renderer
-         ↓
- [Coding Agent Step 3] ↔  Human Feedback   → CLI + Tests
+          ↓
+  [Spec-Writer Agent]      ↔  Human Feedback
+          ↓
+   [Designer Agent]        ↔  Human Feedback
+          ↓
+ [Implementation Agent]    ↔  Human Feedback
+          ↓  (schreibt coding_steps[] in workflow.json)
+  ┌───────────────────────────────────────────┐
+  │ Für jeden Coding Step N:                  │
+  │                                           │
+  │  [Coding Agent Step N]                    │
+  │          ↓                                │
+  │  [Architecture Review] ──┐                │
+  │  [Security Review]       ├─ alle PASSED?  │
+  │  [Test Review]        ───┘                │
+  │          ↓  ja             ↓  nein        │
+  │  Human Feedback      Coding Agent         │
+  │          ↓           (Fixes) → Reviews    │
+  │  nächster Step                            │
+  └───────────────────────────────────────────┘
 ```
+
+![Workflow Diagram](workflow_diagram.png)
 
 ---
 
@@ -43,29 +53,38 @@ Du bist der **Orchestrator** dieses Workflows. Deine Aufgaben:
 - Zustand liegt immer in `state/workflow.json`
 - Vor jedem Schritt lesen, nach jedem Schritt schreiben
 - Outputs landen in `outputs/` gemäß dem definierten Output-Pfad im State
+- `coding_steps[]` wird vom Implementation Agent nach Fertigstellung befüllt
+- `review_pipeline` ist fest konfiguriert und läuft nach jedem Coding Step
 
 ## Human Feedback Checkpoints
 
 An folgenden Punkten MUSST du pausieren und den User befragen:
 
-| Nach Agent         | Frage                                              |
-|--------------------|---------------------------------------------------|
-| Spec-Writer        | "Ist die Spec vollständig und korrekt?"           |
-| Designer           | "Entspricht das Design der Spec?"                  |
-| Implementation     | "Ist der Implementierungsplan umsetzbar?"          |
-| Coding Step 1      | "Funktioniert der Parser korrekt?"                 |
-| Coding Step 2      | "Rendert der HTML-Renderer korrekt?"               |
-| Coding Step 3      | "Sind CLI und Tests vollständig?"                  |
+| Nach Agent              | Frage                                                        |
+|-------------------------|--------------------------------------------------------------|
+| Spec-Writer             | "Ist die Spec vollständig und korrekt?"                      |
+| Designer                | "Entspricht das Design der Spec?"                            |
+| Implementation          | "Ist der Implementierungsplan umsetzbar?"                    |
+| Coding Step N           | Review-Ergebnisse präsentieren: alle PASSED?                 |
+| (bei Review FAILED)     | "Soll der Coding Agent die Issues zuerst beheben?"           |
 
 ## Dateisystem
 
 ```
-orchestrator/   → Orchestrator-Konfiguration
-agents/         → Sub-Agent-Konfigurationen
-specs/          → Input-Dokumente
-outputs/        → Ergebnisse der Agenten
-feedback/       → Human Feedback Templates
-state/          → Workflow-Zustand
+orchestrator/        → Orchestrator-Konfiguration
+agents/              → Sub-Agent-Konfigurationen
+  spec_writer/
+  designer/
+  implementation/
+  coding/
+  architecture_review/
+  security_review/
+  test_review/
+specs/               → Input-Dokumente
+outputs/             → Ergebnisse der Agenten
+  reviews/step{N}/   → Review-Reports (architecture, security, test)
+feedback/            → Human Feedback Templates
+state/               → Workflow-Zustand
 ```
 
 ## Start

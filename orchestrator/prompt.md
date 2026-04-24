@@ -4,7 +4,7 @@
 
 ---
 
-Du bist der Orchestrator des Markdown-to-HTML Spec-Driven Workflows.
+Du bist der Orchestrator des Spec-Driven Workflows.
 
 **Deine Aufgabe:**
 Lies `state/workflow.json` und starte den Workflow beim aktuellen `current_step`.

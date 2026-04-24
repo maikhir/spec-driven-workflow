@@ -5,105 +5,79 @@
 **Skill: Plan lesen und ausführen**
 ```
 1. Lese den Step-Abschnitt aus implementation_plan.md
-2. Extrahiere: Dateien, Funktionen, Test-Cases, DoD
+2. Extrahiere: Dateien, Funktionen/Klassen, Test-Cases, DoD
 3. Implementiere Datei für Datei in Abhängigkeitsreihenfolge
-4. Typen/Interfaces zuerst (types.ts), dann Implementierungen
+4. Typen/Interfaces zuerst, dann Implementierungen, dann Tests
 ```
 
-**Skill: TypeScript-Datei aufbauen**
+**Skill: Datei aufbauen**
 ```
 Reihenfolge pro Datei:
   1. Imports
-  2. Typen/Interfaces (falls lokale)
+  2. Typen/Interfaces (falls lokal)
   3. Kern-Implementierung
   4. Exports
 
-Keine default-Exports — nur named exports.
+Keine default-Exports — nur named exports (sofern nicht anders im Plan).
 ```
 
 ---
 
 ## Testing
 
-**Skill: vitest Test-File schreiben**
-```typescript
-// Struktur:
-import { describe, it, expect } from 'vitest'
-import { functionUnderTest } from '../src/module'
+**Skill: Test-File schreiben**
+```
+Struktur (adaptiere ans Test-Framework aus dem Plan):
 
-describe('ModuleName', () => {
-  describe('functionName', () => {
-    it('should handle [konkrete Case]', () => {
-      // Arrange
-      const input = ...
-      // Act
-      const result = functionUnderTest(input)
-      // Assert
-      expect(result).toEqual(...)
+  describe('ModulName', () => {
+    describe('functionName', () => {
+      it('should handle [konkrete Case]', () => {
+        // Arrange
+        const input = ...
+        // Act
+        const result = functionUnderTest(input)
+        // Assert
+        expect(result).toEqual(...)
+      })
     })
   })
-})
 ```
 
 **Skill: Test-Cases aus Plan ableiten**
 ```
-Plan sagt: "tokenize('# Heading') → HeadingToken mit level=1"
-Übersetze in: expect(tokenize('# Heading')).toEqual([{ type: 'heading', level: 1, text: 'Heading' }])
+Plan sagt: "funktion(input) → erwarteter Output"
+Übersetze in: expect(funktion(input)).toEqual(expectedOutput)
 
 Plan sagt: "Edge Case: leere Eingabe"
-Übersetze in: expect(tokenize('')).toEqual([])
+Übersetze in: expect(funktion('')).toEqual(<erwartetes Verhalten>)
+
+Immer den tatsächlichen Rückgabewert prüfen — nicht nur "kein Error".
 ```
 
 ---
 
-## Markdown Parser (Step 1 spezifisch)
+## Interface-Kontrakte einhalten
 
-**Skill: Regex-basierter Tokenizer**
+**Skill: Exports mit Plan abgleichen**
 ```
-Vorgehen:
-  1. Eingabe zeilenweise aufteilen
-  2. Jede Zeile gegen Pattern-Liste prüfen (in Reihenfolge der Spezifizität)
-  3. Erste Übereinstimmung = Token-Typ
-  4. Token mit extrahierten Daten zurückgeben
-
-Pattern-Reihenfolge:
-  - Headings (###, ##, #) — vor Paragraph prüfen
-  - Horizontal Rule (---)
-  - Blockquote (>)
-  - List items (-, *, 1.)
-  - Code fence (```)
-  - Leerzeile (→ paragraph break)
-  - Alles andere → Paragraph-Text
+Vor dem Abschluss eines Steps:
+1. Lies "Interface-Kontrakte zwischen Steps" im Implementierungsplan
+2. Prüfe: Exportiert dein Code exakt die vereinbarten Signaturen?
+3. Abweichungen sofort korrigieren — der nächste Step baut darauf auf
 ```
 
 ---
 
-## HTML Renderer (Step 2 spezifisch)
+## Definition of Done prüfen
 
-**Skill: AST zu HTML**
+**Skill: DoD-Checkliste abarbeiten**
 ```
-Vorgehen:
-  1. Für jeden AST-Node: entsprechendes HTML-Tag wählen
-  2. Rekursiv Children rendern
-  3. Inline-Formatting (bold, italic, links) via Regex auf Text-Nodes
+Vor der Fertigmeldung:
+  - [ ] Alle im Plan gelisteten Dateien erstellt?
+  - [ ] Alle geforderten Funktionen/Klassen implementiert und exportiert?
+  - [ ] Alle geforderten Test-Cases vorhanden?
+  - [ ] Build fehlerfrei?
+  - [ ] Alle Tests grün?
 
-Sicherheit:
-  - User-Text mit escapeHtml() absichern (< > & " → HTML entities)
-  - Keine rohe String-Interpolation für User-Content
-```
-
----
-
-## CLI (Step 3 spezifisch)
-
-**Skill: Node.js CLI aufbauen**
-```
-process.argv[2] = input file path
-process.argv[3] = "-o" flag
-process.argv[4] = output file path (optional)
-
-Wenn kein -o: Output auf stdout
-Fehlerbehandlung:
-  - File not found → stderr + exit(1)
-  - Kein Argument → usage hint + exit(1)
+Erst wenn alles checked: Fertigmeldung an den Orchestrator.
 ```

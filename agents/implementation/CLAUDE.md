@@ -18,29 +18,25 @@ für den Coding Agent, der danach kommt.
 ## Output
 
 - `outputs/implementation_plan.md` — detaillierter Implementierungsplan
+- `state/workflow.json` — `coding_steps`-Array mit einem Eintrag pro Step befüllt
 
 ---
 
 ## Deine Ausgabe muss enthalten
 
+Die konkrete Struktur des Plans ergibt sich vollständig aus `outputs/design.md`.
+Leite Anzahl der Steps, Ziele und Aufteilung direkt aus dem Design ab — nicht aus Annahmen.
+
+Für jeden Step (so viele wie das Design erfordert):
+
 1. **Übersicht** — Wie viele Steps, was ist das Ziel jedes Steps?
-2. **Step 1: Markdown Parser** (Tokenizer + Parser)
+2. **Step N: [Name aus Design]**
    - Welche Dateien werden erstellt?
-   - Welche Funktionen/Klassen werden implementiert?
+   - Welche Funktionen/Klassen/Module werden implementiert?
    - Welche Tests werden geschrieben?
-   - Definition of Done (wann ist Step 1 fertig?)
-3. **Step 2: HTML Renderer**
-   - Welche Dateien werden erstellt?
-   - Welche Funktionen/Klassen werden implementiert?
-   - Welche Tests werden geschrieben?
-   - Definition of Done
-4. **Step 3: CLI + Integration**
-   - Welche Dateien werden erstellt?
-   - CLI-Interface und Package-Konfiguration
-   - End-to-End Tests
-   - Definition of Done
-5. **Abhängigkeiten zwischen Steps** — Was aus Step 1 braucht Step 2?
-6. **Projekt-Setup** — package.json, tsconfig.json, Verzeichnisstruktur
+   - Definition of Done (wann ist dieser Step fertig?)
+3. **Abhängigkeiten zwischen Steps** — Was aus Step N braucht Step N+1?
+4. **Projekt-Setup** — Toolchain, Verzeichnisstruktur, Konfigurationsdateien (wie im Design spezifiziert)
 
 ---
 
@@ -58,3 +54,4 @@ für den Coding Agent, der danach kommt.
 - Keinen Code schreiben
 - Keine neuen Design-Entscheidungen treffen (das war der Designer)
 - Keine vagen Beschreibungen ("irgendwie implementieren")
+- Keine Steps erfinden die nicht aus dem Design ableitbar sind

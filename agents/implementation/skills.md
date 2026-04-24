@@ -13,16 +13,21 @@ Für jeden Step:
   4. Funktionen: Vollständige Liste mit Signaturen
   5. Tests: Welche Test-Cases?
   6. DoD: "Step ist fertig wenn..."
+
+Gute Aufteilung:
+  - Steps bauen aufeinander auf (klare Reihenfolge)
+  - Jeder Step ist unabhängig testbar
+  - Kein Step ist zu groß für einen einzelnen Coding-Aufruf
 ```
 
 **Skill: Abhängigkeiten kartieren**
 ```
 Interface-Kontrakt zwischen Steps:
-  Step 1 exportiert: tokenize(md: string): Token[]
-                     parse(tokens: Token[]): ASTNode
-  Step 2 benötigt:   ASTNode (muss mit Step 1 kompatibel sein)
-  Step 2 exportiert: render(ast: ASTNode, opts?: Options): string
-  Step 3 benötigt:   tokenize + parse + render
+  Step N exportiert:  <Funktion/Klasse/Modul mit Signatur>
+  Step N+1 benötigt:  <was genau aus Step N>
+  Step N+1 exportiert: <Funktion/Klasse/Modul mit Signatur>
+
+Regel: Step N+1 darf NICHTS aus Step N+2 importieren.
 ```
 
 ---
@@ -31,22 +36,15 @@ Interface-Kontrakt zwischen Steps:
 
 **Skill: Verzeichnisstruktur definieren**
 ```
-Für Markdown-to-HTML:
+Vollständige Struktur angeben — keine Auslassungen.
+Jede Datei mit ihrer Zuständigkeit annotieren:
+
   src/
-    tokenizer.ts    → Step 1
-    parser.ts       → Step 1
-    types.ts        → Step 1 (geteilt mit Step 2)
-    renderer.ts     → Step 2
-    cli.ts          → Step 3
-    index.ts        → Step 3 (Public API)
+    module-a.{ext}    → [Zuständigkeit aus Step 1]
+    module-b.{ext}    → [Zuständigkeit aus Step 2]
   tests/
-    tokenizer.test.ts  → Step 1
-    parser.test.ts     → Step 1
-    renderer.test.ts   → Step 2
-    cli.test.ts        → Step 3
-    integration.test.ts → Step 3
-  package.json
-  tsconfig.json
+    module-a.test.{ext}  → [Tests für Step 1]
+  <config-files>
 ```
 
 ---
@@ -56,37 +54,31 @@ Für Markdown-to-HTML:
 **Skill: DoD formulieren**
 ```
 DoD muss messbar sein:
-  NICHT: "Parser funktioniert"
-  SONDERN: "tokenize() erzeugt korrekte Token für alle 8 Markdown-Elemente,
-            alle Tests in tokenizer.test.ts laufen durch"
+  NICHT: "Modul funktioniert"
+  SONDERN: "Funktion X implementiert und exportiert,
+            Test-File Y hat Testabdeckung für Z,
+            Build läuft fehlerfrei durch"
 
 Format:
   - [ ] Funktion X implementiert und exportiert
-  - [ ] Test-File Y hat Testabdeckung für Z
-  - [ ] Kein TypeScript-Fehler
+  - [ ] Test-File Y hat Test-Cases für Z
+  - [ ] Kein Build-Fehler
+  - [ ] Alle Tests grün
 ```
 
 ---
 
 ## Projekt-Setup
 
-**Skill: package.json planen**
+**Skill: Toolchain aus Design ableiten**
 ```
-Felder die definiert werden müssen:
-  - name, version, description
-  - main (Entry für Library-Use)
-  - bin (Entry für CLI-Use)
-  - scripts: build, test, lint
-  - devDependencies: typescript, vitest, @types/node
-  - type: "module" (ESM)
-```
+Folgende Entscheidungen aus outputs/design.md entnehmen:
+  - Programmiersprache und Version
+  - Build-Tool / Compiler
+  - Test-Framework
+  - Paket-Manager
+  - Abhängigkeiten (nur die im Design genannten)
 
-**Skill: tsconfig.json planen**
-```
-Für CLI-Tool:
-  - target: ES2022
-  - module: NodeNext
-  - moduleResolution: NodeNext
-  - outDir: dist/
-  - strict: true
+Alle Konfigurationsdateien (package.json, tsconfig.json, pyproject.toml, etc.)
+vollständig mit Inhalt im Plan angeben — der Coding Agent soll nichts raten müssen.
 ```

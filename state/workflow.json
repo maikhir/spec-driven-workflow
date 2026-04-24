@@ -1,5 +1,5 @@
 {
-  "project": "markdown-to-html-tool",
+  "project": "TBD — wird aus specs/spec_outline.md bestimmt",
   "current_step": "spec_writer",
   "feedback_required": true,
   "last_updated": "2026-04-24",
@@ -27,33 +27,24 @@
       "output": "outputs/implementation_plan.md",
       "feedback_template": "feedback/implementation_feedback.md",
       "completed_at": null
-    },
-    "coding_step1": {
-      "status": "pending",
-      "agent_config": "agents/coding/",
-      "prompt": "agents/coding/step1_prompt.md",
-      "input": "outputs/implementation_plan.md",
-      "output": "outputs/code/step1/",
-      "feedback_template": null,
-      "completed_at": null
-    },
-    "coding_step2": {
-      "status": "pending",
-      "agent_config": "agents/coding/",
-      "prompt": "agents/coding/step2_prompt.md",
-      "input": "outputs/code/step1/",
-      "output": "outputs/code/step2/",
-      "feedback_template": null,
-      "completed_at": null
-    },
-    "coding_step3": {
-      "status": "pending",
-      "agent_config": "agents/coding/",
-      "prompt": "agents/coding/step3_prompt.md",
-      "input": ["outputs/code/step1/", "outputs/code/step2/"],
-      "output": "outputs/code/step3/",
-      "feedback_template": null,
-      "completed_at": null
     }
-  }
+  },
+  "coding_steps": [],
+  "review_pipeline": [
+    {
+      "agent": "architecture_review",
+      "prompt": "agents/architecture_review/prompt.md",
+      "output_template": "outputs/reviews/step{N}/architecture.md"
+    },
+    {
+      "agent": "security_review",
+      "prompt": "agents/security_review/prompt.md",
+      "output_template": "outputs/reviews/step{N}/security.md"
+    },
+    {
+      "agent": "test_review",
+      "prompt": "agents/test_review/prompt.md",
+      "output_template": "outputs/reviews/step{N}/test.md"
+    }
+  ]
 }

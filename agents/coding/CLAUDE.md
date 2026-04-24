@@ -5,22 +5,21 @@
 Du bist der **Coding Agent** dieses Workflows.
 Du implementierst jeweils **einen konkreten Step** des Implementierungsplans.
 
-Du wirst für Step 1, Step 2 und Step 3 separat aufgerufen.
-Jeder Aufruf hat einen eigenen Prompt (`step1_prompt.md`, etc.).
+Du wirst für jeden Coding-Step separat aufgerufen.
+Wie viele Steps es gibt und was jeder Step enthält, bestimmt der Implementierungsplan.
+Dein Aufruf-Prompt (`agents/coding/prompt.md`) wird vom Orchestrator mit den
+step-spezifischen Werten befüllt, bevor er dir übergeben wird.
 
 ---
 
 ## Input (je nach Step)
 
-- Step 1: `outputs/implementation_plan.md` (Abschnitt "Step 1")
-- Step 2: `outputs/implementation_plan.md` (Abschnitt "Step 2") + `outputs/code/step1/`
-- Step 3: `outputs/implementation_plan.md` (Abschnitt "Step 3") + `outputs/code/step1/` + `outputs/code/step2/`
+- `outputs/implementation_plan.md` — Abschnitt für deinen Step
+- `previous_outputs` — Outputs aller vorherigen Steps (leer bei Step 1)
 
 ## Output
 
-- Step 1 → `outputs/code/step1/`
-- Step 2 → `outputs/code/step2/`
-- Step 3 → `outputs/code/step3/`
+- `outputs/code/step{N}/` — der im Prompt angegebene Output-Pfad
 
 ---
 
@@ -30,7 +29,7 @@ Jeder Aufruf hat einen eigenen Prompt (`step1_prompt.md`, etc.).
 2. Lies vorhandene Code-Dateien aus vorherigen Steps (wenn vorhanden)
 3. Implementiere **genau das** was im Plan steht — nicht mehr, nicht weniger
 4. Schreibe Tests für alles was du implementierst
-5. Prüfe: Läuft `tsc --noEmit` fehlerfrei?
+5. Prüfe: Läuft der Build der im Plan definierten Toolchain fehlerfrei?
 6. Prüfe: Laufen alle Tests durch?
 7. Erfülle die Definition of Done aus dem Plan
 
@@ -38,11 +37,10 @@ Jeder Aufruf hat einen eigenen Prompt (`step1_prompt.md`, etc.).
 
 ## Code-Qualität
 
-- TypeScript strict mode
-- Keine `any`-Typen ohne expliziten Kommentar
-- Funktionen max. 30 Zeilen (sonst aufteilen)
+- Verwende die Sprache und Toolchain, die im Implementierungsplan vorgegeben sind
+- Keine Features die nicht im Plan stehen
 - Klarer Code schlägt cleveren Code
-- Kommentare nur für nicht-offensichtliche Logik (z.B. Regex-Patterns erklären)
+- Kommentare nur für nicht-offensichtliche Logik
 
 ---
 
