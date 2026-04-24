@@ -1,7 +1,8 @@
 # Spec-Driven Multi-Agent Workflow
 
-Inaktives Lerntool. Der Workflow wird Schritt für Schritt manuell durchgespielt.
+Generisches Spec-Driven Workflow Framework für Multi-Agent-Software-Entwicklung.
 Jeder Agent hat eine klar abgegrenzte Aufgabe und gibt erst nach Human Feedback weiter.
+Spec → Design → Implementierungsplan → Code (mit Architecture, Security und Test Review nach jedem Schritt).
 
 ---
 
@@ -27,7 +28,7 @@ falls nicht, stoppt er mit einem Hinweis, bevor irgendetwas ausgeführt wird.
 
 ```bash
 # 1. In das Projektverzeichnis wechseln
-cd /pfad/zu/Multi-Agent-Example
+cd /pfad/zu/spec-driven-workflow
 
 # 2. Claude Code starten (liest CLAUDE.md automatisch)
 claude

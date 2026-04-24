@@ -1,45 +1,47 @@
 
+# Spec Outline: [Projektname]
 
-# Spec Outline: Markdown-to-HTML Tool
+> TEMPLATE-STATUS: unbearbeitet
+> Ersetze alle Platzhalter in eckigen Klammern und entferne diese Zeile,
+> bevor du den Workflow startest.
+
+---
 
 ## Projektziel
 
-Ein Kommandozeilen-Tool, das Markdown-Dateien in valides HTML konvertiert.
+[Beschreibe in 1–3 Sätzen, was dieses Projekt tut und welches Problem es löst.]
 
 ## Zielgruppe
 
-Entwickler und technische Autoren, die Markdown-Dokumente für Web-Präsentation aufbereiten wollen.
+[Wer nutzt das Ergebnis? Entwickler, Endanwender, andere Systeme?]
 
-## Kern-Features (grob)
+## Kern-Features
 
-- Markdown-Elemente in HTML konvertieren:
-  - Überschriften (H1–H6)
-  - Absätze
-  - Fettschrift, Kursiv
-  - Listen (geordnet, ungeordnet)
-  - Links und Bilder
-  - Code-Blöcke (inline und fenced)
-  - Blockquotes
-  - Horizontale Linien
-- Einzelne Dateien konvertieren: `md2html input.md`
-- Output in Datei schreiben: `md2html input.md -o output.html`
-- Optionales HTML-Template für vollständige HTML-Dokumente
+[Liste die wichtigsten Funktionen auf — grob, nicht vollständig ausformuliert.
+Der Spec-Writer Agent wird diese präzisieren.]
+
+- Feature 1
+- Feature 2
+- Feature 3
 
 ## Nicht-funktionale Anforderungen
 
-- Geschrieben in TypeScript
-- Keine externen Abhängigkeiten für den Core-Parser
-- Unit-Tests mit vitest
-- Ausführbar via npx oder globalem CLI-Install
+[Technische Rahmenbedingungen: Sprache, Performance, Skalierung, Plattform, etc.]
+
+- Programmiersprache / Laufzeitumgebung: [z.B. TypeScript/Node.js, Python, Go]
+- Test-Anforderungen: [z.B. Unit-Tests mit X, Mindest-Coverage Y%]
+- [weitere NFRs]
 
 ## Constraints
 
-- Kein vollständiges CommonMark-Parsing (kein GFM, keine Tabellen in v1)
-- Fokus auf Lesbarkeit des Codes (Lernzweck)
-- Output muss valides HTML5 sein
+[Was ist ausdrücklich ausgeschlossen oder eingeschränkt? Was darf nicht geändert werden?]
+
+- [Constraint 1]
+- [Constraint 2]
 
 ## Offene Fragen (für den Spec-Writer)
 
-1. Soll der HTML-Output stylen (CSS) oder plain sein?
-2. Wie soll mit verschachtelten Listen umgegangen werden?
-3. Gibt es ein gewünschtes Fehlerverhalten bei ungültigem Markdown?
+[Was ist noch unklar und soll im ersten Agent-Schritt geklärt werden?]
+
+1. [Frage 1]
+2. [Frage 2]
