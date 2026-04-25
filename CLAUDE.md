@@ -81,6 +81,7 @@ An folgenden Punkten MUSST du pausieren und den User befragen:
 ```
 orchestrator/        → Orchestrator-Konfiguration
 agents/              → Sub-Agent-Konfigurationen
+  code_analysis/     → Ist-Stand-Analyse für Folge-Features
   spec_writer/
   designer/
   implementation/
@@ -91,9 +92,12 @@ agents/              → Sub-Agent-Konfigurationen
   github/            → GitHub MCP Agent (PR/Issue-Erstellung)
 specs/               → Input-Dokumente
 outputs/             → Ergebnisse der Agenten
+  codebase_summary.md → Ist-Stand-Analyse (nach erstem Zyklus)
   reviews/step{N}/   → Review-Reports (architecture, security, test)
+  archive/feature_N/ → Gesicherte Outputs früherer Feature-Zyklen
 feedback/            → Human Feedback Templates
 state/               → Workflow-Zustand (inkl. github.refs)
+scripts/             → Hilfsskripte (new_feature.sh)
 dashboard/           → Web-Dashboard (index.html + serve.sh)
 ```
 

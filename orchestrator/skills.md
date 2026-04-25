@@ -1,5 +1,40 @@
 # Orchestrator Skills
 
+## Multi-Feature-Workflow
+
+**Skill: Code-Analysis-Bedingung prüfen**
+```
+1. Prüfe ob outputs/code/ Dateien enthält:
+     find outputs/code/ -type f -not -name '.gitkeep'
+2. Falls LEER:
+     → code_analysis.status bleibt "skipped"
+     → Nächster Step: spec_writer
+3. Falls NICHT LEER und code_analysis.status = "pending":
+     → Code-Analysis Agent aufrufen (agents/code_analysis/prompt.md)
+     → Warte auf outputs/codebase_summary.md
+     → Human Feedback einholen
+     → code_analysis.status = "completed"
+     → Nächster Step: spec_writer
+```
+
+**Skill: Codebase-Kontext injizieren**
+```
+Wenn outputs/codebase_summary.md existiert:
+  Füge beim Aufruf von spec_writer und designer hinzu:
+  "Lies außerdem outputs/codebase_summary.md — das ist der Ist-Stand
+   des bestehenden Codes. Berücksichtige Architektur und Konventionen."
+```
+
+**Skill: Neuen Feature-Zyklus erkennen**
+```
+Wenn current_step = "code_analysis" UND outputs/code/ nicht leer:
+  → Informiere User: "Ich starte mit Code-Analyse des bestehenden Codes."
+  → Zeige was archiviert wurde (falls outputs/archive/ existiert)
+  → Führe code_analysis aus
+```
+
+---
+
 ## State Management
 
 **Skill: State lesen**

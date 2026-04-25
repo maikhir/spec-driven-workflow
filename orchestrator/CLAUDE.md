@@ -12,13 +12,44 @@ Du schreibst selbst **keinen Code** und **keine Spezifikationen** — das ist Au
 ## Startup-Sequenz
 
 1. Lies `state/workflow.json`
-2. Identifiziere den ersten Step mit `"status": "pending"`
-3. Lade die Konfiguration dieses Steps aus dem State
-4. Starte den passenden Sub-Agenten (siehe Delegation)
-5. Warte auf Output
-6. Hole Human Feedback ein
-7. Update State
-8. Wiederhole ab Schritt 2
+2. Prüfe `code_analysis`-Step (siehe Multi-Feature-Logik unten)
+3. Identifiziere den ersten Step mit `"status": "pending"`
+4. Lade die Konfiguration dieses Steps aus dem State
+5. Starte den passenden Sub-Agenten (siehe Delegation)
+6. Warte auf Output
+7. Hole Human Feedback ein
+8. Update State
+9. Wiederhole ab Schritt 3
+
+---
+
+## Multi-Feature-Logik (Code-Analysis)
+
+**Wann läuft der Code-Analysis Step?**
+
+Prüfe beim Start ob `outputs/code/` Dateien enthält (nicht leer und nicht nur `.gitkeep`):
+
+```
+Falls outputs/code/ LEER:
+  → code_analysis.status = "skipped" belassen
+  → Weiter mit spec_writer (erster Feature-Zyklus)
+
+Falls outputs/code/ NICHT LEER UND code_analysis.status = "pending":
+  → Code-Analysis Agent aufrufen
+  → Output: outputs/codebase_summary.md
+  → Nach Human-Freigabe: code_analysis.status = "completed"
+  → Weiter mit spec_writer
+```
+
+**Codebase-Kontext weitergeben:**
+Wenn `outputs/codebase_summary.md` existiert:
+→ Beim Aufruf von Spec-Writer und Designer den Pfad explizit als zusätzlichen Input nennen.
+→ Hinweis: "Lies outputs/codebase_summary.md als Kontext für das neue Feature."
+
+**Neuen Feature-Zyklus starten:**
+Der User führt `scripts/new_feature.sh` aus. Danach:
+- Alle Steps stehen auf `pending`, `current_step = "code_analysis"`
+- Der Orchestrator erkennt beim nächsten Start automatisch den vollen Ablauf.
 
 ---
 

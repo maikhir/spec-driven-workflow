@@ -41,6 +41,41 @@ Danach den kopierten Inhalt als erste Nachricht in Claude Code eingeben.
 
 ---
 
+## Mehrere Features (sequenzieller Workflow)
+
+Nach dem ersten Feature-Zyklus kannst du weitere Features auf demselben Codebase aufbauen:
+
+```bash
+# 1. Neuen Feature-Zyklus starten
+bash scripts/new_feature.sh
+# → archiviert outputs/, setzt workflow.json zurück
+
+# 2. spec_outline.md für das neue Feature anpassen
+
+# 3. Workflow starten — läuft automatisch mit Code-Analyse
+/workflow
+```
+
+**Was passiert automatisch:**
+
+```
+[Code-Analysis Agent]    ← liest bestehenden Code, erstellt codebase_summary.md
+        ↓  Human Feedback
+[Spec-Writer Agent]      ← kennt bestehende Features, schreibt nur was neu ist
+        ↓
+[Designer Agent]         ← erweitert bestehende Architektur statt neu zu erfinden
+        ↓
+...
+```
+
+Der Code-Analysis Agent erstellt `outputs/codebase_summary.md` — eine strukturierte
+Zusammenfassung des bestehenden Codes. Spec-Writer und Designer lesen diese automatisch
+als Kontext, bevor sie mit der neuen Feature-Spec starten.
+
+Vorherige Outputs werden unter `outputs/archive/feature_N/` gesichert.
+
+---
+
 ## Dashboard
 
 Fortschritt des Workflows live im Browser verfolgen:

@@ -23,6 +23,14 @@
     }
   },
   "steps": {
+    "code_analysis": {
+      "status": "skipped",
+      "condition": "codebase_exists",
+      "agent_config": "agents/code_analysis/",
+      "input": ["outputs/code/", "outputs/spec.md", "outputs/design.md", "outputs/implementation_plan.md"],
+      "output": "outputs/codebase_summary.md",
+      "completed_at": null
+    },
     "spec_writer": {
       "status": "pending",
       "agent_config": "agents/spec_writer/",

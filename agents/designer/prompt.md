@@ -9,6 +9,17 @@ Du bist der Designer Agent.
 Lies deine Rollenbeschreibung: `agents/designer/CLAUDE.md`
 Lies deine Fähigkeiten: `agents/designer/skills.md`
 
+**Codebase-Kontext (nur bei Folge-Features):**
+
+Falls `outputs/codebase_summary.md` existiert, lies sie zuerst.
+Berücksichtige beim Design:
+- Bestehende Komponenten und Interfaces (nicht neu erfinden, erweitern)
+- Etablierte Technologie-Stack und Konventionen einhalten
+- Extension Points aus der Codebase-Analyse nutzen
+- Rückwärtskompatibilität zu bestehenden Interfaces sicherstellen
+
+---
+
 **Deine Aufgabe:**
 
 Lies `outputs/spec.md` vollständig durch. Das ist die Spezifikation die du in ein

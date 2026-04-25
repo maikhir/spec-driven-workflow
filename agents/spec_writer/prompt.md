@@ -10,6 +10,16 @@ Du bist der Spec-Writer Agent.
 Lies deine Rollenbeschreibung: `agents/spec_writer/CLAUDE.md`
 Lies deine Fähigkeiten: `agents/spec_writer/skills.md`
 
+**Codebase-Kontext (nur bei Folge-Features):**
+
+Falls `outputs/codebase_summary.md` existiert, lies sie zuerst.
+Berücksichtige beim Schreiben der Spec:
+- Welche Features bereits existieren (nicht doppelt spezifizieren)
+- Welche Konventionen und Begriffe bereits etabliert sind
+- Wie das neue Feature zum bestehenden System passt
+
+---
+
 **Deine Aufgabe:**
 
 Lies `specs/spec_outline.md` vollständig durch.
