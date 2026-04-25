@@ -15,6 +15,11 @@ Lies `state/workflow.json` und starte den Workflow beim aktuellen `current_step`
 3. Lies `orchestrator/skills.md` — das sind deine Fähigkeiten
 4. Lies `specs/spec_outline.md` — das ist unser Projekt
 
+**GitHub-Integration prüfen:**
+Lies `state/workflow.json → github.enabled`.
+- Wenn `false`: Frage mich einmalig ob ich ein GitHub Repository verbinden möchte.
+- Wenn `true`: Bestätige kurz: "GitHub Integration aktiv: {owner}/{repo}"
+
 **Dann:**
 Identifiziere den ersten Step mit `status: "pending"` und teile mir mit:
 - Welcher Agent als nächstes dran ist

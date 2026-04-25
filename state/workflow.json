@@ -3,6 +3,25 @@
   "current_step": "spec_writer",
   "feedback_required": true,
   "last_updated": "2026-04-24",
+  "github": {
+    "enabled": true,
+    "owner": null,
+    "repo": null,
+    "base_branch": "main",
+    "features": {
+      "create_milestone": true,
+      "create_step_issues": true,
+      "create_branches": true,
+      "create_prs": true,
+      "create_finding_issues": true
+    },
+    "refs": {
+      "milestone_id": null,
+      "step_issues": {},
+      "step_branches": {},
+      "step_prs": {}
+    }
+  },
   "steps": {
     "spec_writer": {
       "status": "pending",

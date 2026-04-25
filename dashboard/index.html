@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spec-Driven Workflow — Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3347;
+      --text: #e2e8f0;
+      --text-muted: #8892a4;
+      --accent: #6366f1;
+      --accent-dim: #3730a3;
+      --green: #22c55e;
+      --green-dim: #14532d;
+      --amber: #f59e0b;
+      --amber-dim: #78350f;
+      --red: #ef4444;
+      --red-dim: #7f1d1d;
+      --gray: #475569;
+      --gray-dim: #1e293b;
+      --radius: 8px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --mono: "SF Mono", "Fira Code", "Consolas", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .logo {
+      width: 30px; height: 30px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    h1 { font-size: 16px; font-weight: 600; }
+    .project-name {
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .refresh-info { font-size: 12px; color: var(--text-muted); }
+    .refresh-dot {
+      display: inline-block; width: 7px; height: 7px;
+      border-radius: 50%; background: var(--green);
+      margin-right: 5px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 12px;
+      transition: background .15s;
+    }
+    .btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+
+    /* ── Layout ── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 28px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ── Section Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-body { padding: 20px; }
+
+    /* ── Pipeline ── */
+    #pipeline-track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .pipeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 110px;
+      position: relative;
+    }
+    .pipeline-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: calc(50% + 20px);
+      right: -50%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .pipeline-step.completed:not(:last-child)::after { background: var(--green); }
+    .pipeline-step.active:not(:last-child)::after { background: var(--amber); }
+
+    .step-dot {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+      z-index: 1;
+      position: relative;
+      transition: all .2s;
+    }
+    .pipeline-step.completed .step-dot {
+      background: var(--green-dim);
+      border-color: var(--green);
+      color: var(--green);
+    }
+    .pipeline-step.active .step-dot {
+      background: var(--amber-dim);
+      border-color: var(--amber);
+      color: var(--amber);
+      box-shadow: 0 0 12px rgba(245,158,11,.3);
+    }
+    .pipeline-step.failed .step-dot {
+      background: var(--red-dim);
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .step-label {
+      margin-top: 8px;
+      font-size: 11px;
+      text-align: center;
+      color: var(--text-muted);
+      max-width: 90px;
+      line-height: 1.3;
+    }
+    .pipeline-step.active .step-label { color: var(--amber); font-weight: 600; }
+    .pipeline-step.completed .step-label { color: var(--green); }
+
+    /* ── Progress Bar ── */
+    .progress-bar-wrap {
+      margin-top: 20px;
+      background: var(--surface2);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: 4px;
+      transition: width .4s ease;
+    }
+    .progress-label {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .03em;
+      white-space: nowrap;
+    }
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .badge-pending { background: var(--gray-dim); color: var(--gray); }
+    .badge-pending::before { background: var(--gray); }
+    .badge-active { background: var(--amber-dim); color: var(--amber); }
+    .badge-active::before { background: var(--amber); animation: pulse 1.5s infinite; }
+    .badge-completed { background: var(--green-dim); color: var(--green); }
+    .badge-completed::before { background: var(--green); }
+    .badge-failed { background: var(--red-dim); color: var(--red); }
+    .badge-failed::before { background: var(--red); }
+    .badge-passed { background: var(--green-dim); color: var(--green); }
+    .badge-passed::before { background: var(--green); }
+
+    /* ── Link-style buttons ── */
+    .file-link {
+      font-size: 12px;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: var(--mono);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .file-link:hover { color: #818cf8; }
+    .file-link-dim { color: var(--text-muted); text-decoration: none; cursor: default; }
+
+    /* ── Coding Steps ── */
+    .coding-step-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+    }
+    .coding-step-card:last-child { margin-bottom: 0; }
+    .coding-step-header {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .coding-step-header:hover { background: rgba(255,255,255,.02); }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: var(--accent-dim); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+    .step-info { flex: 1; }
+    .step-name { font-weight: 500; font-size: 14px; }
+    .step-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .review-badges { display: flex; gap: 6px; align-items: center; }
+    .chevron {
+      color: var(--text-muted); font-size: 12px;
+      transition: transform .2s;
+    }
+    .coding-step-body {
+      border-top: 1px solid var(--border);
+      padding: 14px 16px;
+      display: none;
+    }
+    .coding-step-body.open { display: block; }
+    .review-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .review-row:last-child { border-bottom: none; }
+    .review-name { font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .review-icon { font-size: 16px; }
+
+    /* ── GitHub Section ── */
+    .gh-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .gh-tile {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .gh-tile-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 6px;
+    }
+    .gh-tile-value {
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--mono);
+    }
+    .gh-tile-value a { color: var(--accent); text-decoration: none; }
+    .gh-tile-value a:hover { text-decoration: underline; }
+    .gh-disabled { color: var(--text-muted); font-style: italic; font-family: var(--font); }
+
+    .refs-table { width: 100%; }
+    .refs-table td { padding: 6px 8px; font-size: 13px; }
+    .refs-table td:first-child { color: var(--text-muted); width: 80px; }
+    .refs-table a { color: var(--accent); text-decoration: none; }
+    .refs-table a:hover { text-decoration: underline; }
+
+    /* ── Modal (Output Viewer) ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 200;
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-end;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-panel {
+      width: min(700px, 100vw);
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(40px);
+      transition: transform .2s;
+    }
+    .modal-overlay.open .modal-panel { transform: translateX(0); }
+    .modal-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-path { font-family: var(--mono); font-size: 12px; color: var(--text-muted); }
+    .modal-close {
+      background: none; border: none; color: var(--text-muted);
+      font-size: 20px; cursor: pointer; line-height: 1;
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+    }
+    .modal-close:hover { background: var(--surface2); color: var(--text); }
+    .modal-body {
+      flex: 1; overflow-y: auto;
+      padding: 20px 24px;
+    }
+    .modal-loading { color: var(--text-muted); font-style: italic; }
+    .modal-error { color: var(--red); }
+
+    /* ── Markdown Render ── */
+    .md h1,.md h2,.md h3 { font-weight: 600; margin: 18px 0 8px; line-height: 1.3; }
+    .md h1 { font-size: 20px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .md h2 { font-size: 16px; color: var(--accent); }
+    .md h3 { font-size: 14px; }
+    .md p { margin: 8px 0; color: var(--text); }
+    .md ul,.md ol { padding-left: 20px; margin: 8px 0; }
+    .md li { margin: 3px 0; }
+    .md code {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 3px; padding: 1px 5px;
+      font-family: var(--mono); font-size: 12px;
+    }
+    .md pre {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      overflow-x: auto; margin: 10px 0;
+      font-family: var(--mono); font-size: 12px; line-height: 1.5;
+    }
+    .md pre code { background: none; border: none; padding: 0; font-size: inherit; }
+    .md hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .md blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 4px 14px; margin: 10px 0;
+      color: var(--text-muted);
+    }
+    .md table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md th,.md td { border: 1px solid var(--border); padding: 7px 12px; text-align: left; }
+    .md th { background: var(--surface2); font-weight: 600; font-size: 12px; }
+    .md a { color: var(--accent); }
+    .md strong { font-weight: 600; }
+    .md em { font-style: italic; color: var(--text-muted); }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+    /* ── Timestamps ── */
+    .ts { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+
+    /* ── Error banner ── */
+    #error-banner {
+      background: var(--red-dim);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">S</div>
+    <h1>Spec-Driven Workflow</h1>
+    <span class="project-name" id="project-name">Loading…</span>
+  </div>
+  <div class="header-right">
+    <span class="refresh-info">
+      <span class="refresh-dot" id="refresh-dot"></span>
+      <span id="refresh-countdown">Aktualisierung in 10s</span>
+    </span>
+    <button class="btn" onclick="loadState(true)">↻ Jetzt</button>
+  </div>
+</header>
+
+<main>
+  <div id="error-banner"></div>
+
+  <!-- Pipeline Progress -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">◈ Pipeline-Fortschritt</span>
+      <span id="progress-text" class="ts"></span>
+    </div>
+    <div class="card-body">
+      <div id="pipeline-track"></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="progress-label" id="progress-label">0 von 0 Schritten abgeschlossen</div>
+    </div>
+  </div>
+
+  <!-- Main Steps Table -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">◈ Haupt-Schritte</span>
+    </div>
+    <div class="card-body" style="padding:0">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:140px">Schritt</th>
+            <th style="width:120px">Status</th>
+            <th>Input</th>
+            <th>Output</th>
+            <th style="width:150px">Abgeschlossen</th>
+          </tr>
+        </thead>
+        <tbody id="steps-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Coding Steps -->
+  <div class="card" id="coding-card">
+    <div class="card-header">
+      <span class="card-title">◈ Coding Steps & Reviews</span>
+      <span class="ts" id="coding-count"></span>
+    </div>
+    <div class="card-body" id="coding-body">
+      <div class="empty">
+        <div class="empty-icon">🔧</div>
+        <div>Coding Steps werden vom Implementation Agent definiert</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GitHub Integration -->
+  <div class="card" id="github-card">
+    <div class="card-header">
+      <span class="card-title">◈ GitHub Integration</span>
+      <span id="gh-status-badge"></span>
+    </div>
+    <div class="card-body" id="github-body"></div>
+  </div>
+
+</main>
+
+<!-- Output Viewer Slide-Panel -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <span class="modal-path" id="modal-path"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── Minimal Markdown Renderer ──────────────────────────────────────────────
+function renderMd(text) {
+  if (!text) return '<p class="modal-error">Datei leer oder nicht gefunden.</p>';
+  const escape = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  let html = '';
+  const lines = text.split('\n');
+  let inCode = false, codeLang = '', codeLines = [];
+  let inTable = false, tableRows = [];
+
+  const flushTable = () => {
+    if (!tableRows.length) return '';
+    let t = '<table>';
+    tableRows.forEach((row, i) => {
+      const cells = row.split('|').filter((_,ci,a) => ci>0 && ci<a.length-1);
+      if (i===1 && cells.every(c=>c.trim().match(/^[-:]+$/))) return;
+      const tag = i===0 ? 'th' : 'td';
+      t += '<tr>' + cells.map(c=>`<${tag}>${inlineRender(c.trim())}</${tag}>`).join('') + '</tr>';
+    });
+    t += '</table>';
+    tableRows = [];
+    inTable = false;
+    return t;
+  };
+
+  const inlineRender = s => {
+    s = escape(s);
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    s = s.replace(/`(.+?)`/g, '<code>$1</code>');
+    s = s.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>');
+    return s;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Code blocks
+    if (line.startsWith('```')) {
+      if (!inCode) {
+        if (inTable) { html += flushTable(); }
+        inCode = true;
+        codeLang = line.slice(3).trim();
+        codeLines = [];
+      } else {
+        html += `<pre><code>${escape(codeLines.join('\n'))}</code></pre>`;
+        inCode = false;
+      }
+      continue;
+    }
+    if (inCode) { codeLines.push(line); continue; }
+
+    // Tables
+    if (line.startsWith('|')) {
+      inTable = true;
+      tableRows.push(line);
+      continue;
+    } else if (inTable) {
+      html += flushTable();
+    }
+
+    // HR
+    if (line.match(/^---+$/) || line.match(/^\*\*\*+$/)) { html += '<hr>'; continue; }
+
+    // Headings
+    const hm = line.match(/^(#{1,6})\s+(.+)/);
+    if (hm) { html += `<h${hm[1].length}>${inlineRender(hm[2])}</h${hm[1].length}>`; continue; }
+
+    // Blockquote
+    if (line.startsWith('> ')) { html += `<blockquote>${inlineRender(line.slice(2))}</blockquote>`; continue; }
+
+    // Lists
+    const lm = line.match(/^(\s*)[-*+]\s+(.+)/);
+    if (lm) { html += `<ul><li>${inlineRender(lm[2])}</li></ul>`; continue; }
+    const nm = line.match(/^(\s*)\d+\.\s+(.+)/);
+    if (nm) { html += `<ol><li>${inlineRender(nm[2])}</li></ol>`; continue; }
+
+    // Empty line
+    if (line.trim() === '') { html += '<br>'; continue; }
+
+    // Paragraph
+    html += `<p>${inlineRender(line)}</p>`;
+  }
+  if (inTable) html += flushTable();
+  // Merge consecutive ul/ol
+  html = html.replace(/<\/ul>\s*<ul>/g,'').replace(/<\/ol>\s*<ol>/g,'');
+  return html;
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────────
+function openFile(path) {
+  const overlay = document.getElementById('modal-overlay');
+  const pathEl = document.getElementById('modal-path');
+  const body = document.getElementById('modal-body');
+  pathEl.textContent = path;
+  body.innerHTML = '<p class="modal-loading">Lade…</p>';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  fetch('/' + path + '?t=' + Date.now())
+    .then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(text => {
+      body.innerHTML = '<div class="md">' + renderMd(text) + '</div>';
+    })
+    .catch(err => {
+      body.innerHTML = `<p class="modal-error">Fehler beim Laden: ${err}</p>`;
+    });
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// ── Status helpers ──────────────────────────────────────────────────────────
+const STATUS_LABEL = { pending:'Ausstehend', in_progress:'Aktiv', completed:'Abgeschlossen', failed:'Fehlgeschlagen' };
+const STATUS_MAP = { pending:'pending', in_progress:'active', completed:'completed', failed:'failed' };
+
+function badge(status) {
+  const cls = STATUS_MAP[status] || 'pending';
+  const lbl = STATUS_LABEL[status] || status;
+  return `<span class="badge badge-${cls}">${lbl}</span>`;
+}
+
+function reviewBadge(status) {
+  if (!status) return `<span class="badge badge-pending">Ausstehend</span>`;
+  const s = status.toLowerCase();
+  if (s==='passed'||s==='bestanden') return `<span class="badge badge-passed">PASSED</span>`;
+  if (s==='failed'||s==='fehlgeschlagen') return `<span class="badge badge-failed">FAILED</span>`;
+  return `<span class="badge badge-active">${status}</span>`;
+}
+
+function fileLink(path, label) {
+  if (!path) return `<span class="file-link-dim">—</span>`;
+  const display = label || path;
+  return `<button class="file-link" onclick="openFile('${path}')">${display}</button>`;
+}
+
+function ts(val) {
+  if (!val) return '—';
+  return `<span class="ts">${val}</span>`;
+}
+
+// ── Build Pipeline Track ───────────────────────────────────────────────────
+function buildPipeline(data) {
+  const track = document.getElementById('pipeline-track');
+  const allSteps = [];
+
+  // Main steps
+  const stepOrder = ['spec_writer','designer','implementation'];
+  const stepLabels = { spec_writer:'Spec Writer', designer:'Designer', implementation:'Implementation' };
+  stepOrder.forEach(k => {
+    if (data.steps && data.steps[k]) {
+      allSteps.push({ id: k, label: stepLabels[k], status: data.steps[k].status });
+    }
+  });
+
+  // Coding steps
+  (data.coding_steps || []).forEach((cs, i) => {
+    allSteps.push({
+      id: `coding_${i+1}`,
+      label: `Step ${i+1}`,
+      status: cs.status || 'pending',
+      sub: true
+    });
+  });
+
+  const completed = allSteps.filter(s => s.status === 'completed').length;
+  const total = allSteps.length;
+
+  track.innerHTML = allSteps.map((s, i) => {
+    let cls = '';
+    if (s.status === 'completed') cls = 'completed';
+    else if (s.status === 'in_progress') cls = 'active';
+    else if (s.status === 'failed') cls = 'failed';
+    else if (s.id === data.current_step) cls = 'active';
+    return `<div class="pipeline-step ${cls}">
+      <div class="step-dot">${s.status==='completed'?'✓':String(i+1)}</div>
+      <div class="step-label">${s.label}</div>
+    </div>`;
+  }).join('');
+
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${completed} von ${total} Schritten abgeschlossen`;
+  document.getElementById('progress-text').textContent = `${pct}%`;
+}
+
+// ── Build Steps Table ──────────────────────────────────────────────────────
+function buildStepsTable(data) {
+  const tbody = document.getElementById('steps-tbody');
+  const stepOrder = ['spec_writer','designer','implementation'];
+  const stepLabels = { spec_writer:'Spec Writer', designer:'Designer', implementation:'Implementation' };
+
+  if (!data.steps) { tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);padding:20px">Keine Schritte gefunden</td></tr>'; return; }
+
+  tbody.innerHTML = stepOrder.filter(k => data.steps[k]).map(k => {
+    const s = data.steps[k];
+    const isCurrent = data.current_step === k;
+    const statusStr = isCurrent && s.status === 'pending' ? 'in_progress' : s.status;
+    return `<tr>
+      <td><strong>${stepLabels[k]}</strong></td>
+      <td>${badge(statusStr)}</td>
+      <td>${fileLink(s.input, s.input)}</td>
+      <td>${s.status === 'completed' ? fileLink(s.output, s.output) : `<span class="file-link-dim">${s.output}</span>`}</td>
+      <td>${ts(s.completed_at)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Build Coding Steps ─────────────────────────────────────────────────────
+function buildCodingSteps(data) {
+  const body = document.getElementById('coding-body');
+  const countEl = document.getElementById('coding-count');
+  const codingSteps = data.coding_steps || [];
+
+  if (codingSteps.length === 0) {
+    countEl.textContent = '';
+    body.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔧</div>
+      <div>Coding Steps werden vom Implementation Agent definiert</div>
+    </div>`;
+    return;
+  }
+
+  countEl.textContent = `${codingSteps.length} Steps`;
+  const reviewTypes = [
+    { key: 'architecture', icon: '🏗', label: 'Architecture' },
+    { key: 'security',     icon: '🔒', label: 'Security' },
+    { key: 'test',         icon: '🧪', label: 'Test' }
+  ];
+
+  body.innerHTML = codingSteps.map((cs, i) => {
+    const n = i + 1;
+    const reviews = cs.reviews || {};
+    const reviewHTML = reviewTypes.map(rt => {
+      const rv = reviews[rt.key] || {};
+      const outputPath = `outputs/reviews/step${n}/${rt.key}.md`;
+      const hasOutput = rv.status;
+      return `<div class="review-row">
+        <span class="review-name">
+          <span class="review-icon">${rt.icon}</span>
+          ${rt.label} Review
+        </span>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${reviewBadge(rv.status)}
+          ${hasOutput ? fileLink(outputPath, 'Report') : '<span class="file-link-dim">—</span>'}
+        </div>
+      </div>`;
+    }).join('');
+
+    const allPassed = reviewTypes.every(rt => (reviews[rt.key]||{}).status === 'passed');
+    const anyFailed = reviewTypes.some(rt => (reviews[rt.key]||{}).status === 'failed');
+    const overallBadge = allPassed ? `<span class="badge badge-passed">PASSED</span>` :
+                         anyFailed ? `<span class="badge badge-failed">FAILED</span>` :
+                                     badge(cs.status || 'pending');
+
+    const ghRefs = data.github?.refs || {};
+    const branchName = (ghRefs.step_branches || {})[String(n)];
+    const prNum    = (ghRefs.step_prs || {})[String(n)];
+    const issueNum = (ghRefs.step_issues || {})[String(n)];
+
+    let ghInfo = '';
+    if (data.github?.enabled) {
+      const base = `https://github.com/${data.github.owner}/${data.github.repo}`;
+      if (branchName) ghInfo += `<span class="ts" style="margin-right:8px">🌿 ${branchName}</span>`;
+      if (prNum)      ghInfo += `<a class="file-link" href="${base}/pull/${prNum}" target="_blank" style="margin-right:8px">PR #${prNum}</a>`;
+      if (issueNum)   ghInfo += `<a class="file-link" href="${base}/issues/${issueNum}" target="_blank">Issue #${issueNum}</a>`;
+    }
+
+    return `<div class="coding-step-card">
+      <div class="coding-step-header" onclick="toggleCodingStep(this)">
+        <div class="step-num">${n}</div>
+        <div class="step-info">
+          <div class="step-name">${cs.label || cs.name || `Coding Step ${n}`}</div>
+          <div class="step-meta">${cs.description || ''}${ghInfo ? ' — ' + ghInfo : ''}</div>
+        </div>
+        <div class="review-badges">${overallBadge}</div>
+        <span class="chevron">▶</span>
+      </div>
+      <div class="coding-step-body">${reviewHTML}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCodingStep(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  const open = body.classList.toggle('open');
+  chevron.style.transform = open ? 'rotate(90deg)' : '';
+}
+
+// ── Build GitHub Section ───────────────────────────────────────────────────
+function buildGitHub(data) {
+  const body = document.getElementById('github-body');
+  const statusBadge = document.getElementById('gh-status-badge');
+  const gh = data.github || {};
+
+  if (!gh.enabled) {
+    statusBadge.innerHTML = `<span class="badge badge-pending">Deaktiviert</span>`;
+    body.innerHTML = `<p class="gh-disabled">GitHub-Integration ist deaktiviert. Setze <code>github.enabled: true</code> in state/workflow.json.</p>`;
+    return;
+  }
+
+  statusBadge.innerHTML = `<span class="badge badge-completed">Aktiv</span>`;
+  const refs = gh.refs || {};
+  const base = `https://github.com/${gh.owner}/${gh.repo}`;
+
+  // Tiles
+  const tilesHTML = `<div class="gh-grid">
+    <div class="gh-tile">
+      <div class="gh-tile-label">Repository</div>
+      <div class="gh-tile-value"><a href="${base}" target="_blank">${gh.owner}/${gh.repo}</a></div>
+    </div>
+    <div class="gh-tile">
+      <div class="gh-tile-label">Base Branch</div>
+      <div class="gh-tile-value">${gh.base_branch || 'main'}</div>
+    </div>
+    <div class="gh-tile">
+      <div class="gh-tile-label">Milestone Issue</div>
+      <div class="gh-tile-value">${refs.milestone_id
+        ? `<a href="${base}/issues/${refs.milestone_id}" target="_blank">#${refs.milestone_id}</a>`
+        : '<span style="color:var(--text-muted)">—</span>'}</div>
+    </div>
+  </div>`;
+
+  // Refs tables
+  const hasStepIssues = Object.keys(refs.step_issues || {}).length > 0;
+  const hasStepBranches = Object.keys(refs.step_branches || {}).length > 0;
+  const hasStepPrs = Object.keys(refs.step_prs || {}).length > 0;
+
+  const refsSection = (hasStepIssues || hasStepBranches || hasStepPrs) ? `
+    <div style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+      ${hasStepBranches ? `<div class="gh-tile">
+        <div class="gh-tile-label">Step Branches</div>
+        <table class="refs-table">${Object.entries(refs.step_branches).map(([k,v])=>`<tr><td>Step ${k}</td><td><a href="${base}/tree/${v}" target="_blank">${v}</a></td></tr>`).join('')}</table>
+      </div>` : ''}
+      ${hasStepPrs ? `<div class="gh-tile">
+        <div class="gh-tile-label">Pull Requests</div>
+        <table class="refs-table">${Object.entries(refs.step_prs).map(([k,v])=>`<tr><td>Step ${k}</td><td><a href="${base}/pull/${v}" target="_blank">#${v}</a></td></tr>`).join('')}</table>
+      </div>` : ''}
+      ${hasStepIssues ? `<div class="gh-tile">
+        <div class="gh-tile-label">Step Issues</div>
+        <table class="refs-table">${Object.entries(refs.step_issues).map(([k,v])=>`<tr><td>Step ${k}</td><td><a href="${base}/issues/${v}" target="_blank">#${v}</a></td></tr>`).join('')}</table>
+      </div>` : ''}
+    </div>` : '';
+
+  body.innerHTML = tilesHTML + refsSection;
+}
+
+// ── Main State Loader ──────────────────────────────────────────────────────
+async function loadState(manual = false) {
+  const dot = document.getElementById('refresh-dot');
+  dot.style.background = 'var(--amber)';
+  try {
+    const res = await fetch('/state/workflow.json?t=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Header
+    document.getElementById('project-name').textContent = data.project || 'Unbekanntes Projekt';
+    document.title = `${data.project || 'Workflow'} — Dashboard`;
+
+    // Hide error
+    document.getElementById('error-banner').style.display = 'none';
+
+    // Sections
+    buildPipeline(data);
+    buildStepsTable(data);
+    buildCodingSteps(data);
+    buildGitHub(data);
+
+    dot.style.background = 'var(--green)';
+    if (manual) showFlash('Aktualisiert ✓');
+  } catch (e) {
+    dot.style.background = 'var(--red)';
+    const eb = document.getElementById('error-banner');
+    eb.textContent = `Fehler beim Laden von state/workflow.json: ${e.message}. Ist der Server gestartet? (dashboard/serve.sh)`;
+    eb.style.display = 'block';
+  }
+}
+
+function showFlash(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--green-dim);color:var(--green);border:1px solid var(--green);border-radius:6px;padding:8px 16px;font-size:13px;z-index:300;transition:opacity .3s';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 1800);
+}
+
+// ── Auto-refresh ───────────────────────────────────────────────────────────
+const REFRESH_INTERVAL = 10;
+let countdown = REFRESH_INTERVAL;
+
+setInterval(() => {
+  countdown--;
+  if (countdown <= 0) {
+    countdown = REFRESH_INTERVAL;
+    loadState();
+  }
+  document.getElementById('refresh-countdown').textContent =
+    countdown <= 3 ? `Aktualisierung in ${countdown}s…` : `Aktualisierung in ${countdown}s`;
+}, 1000);
+
+// Initial load
+loadState();
+</script>
+</body>
+</html>

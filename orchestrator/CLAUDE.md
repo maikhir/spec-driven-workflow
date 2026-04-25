@@ -107,6 +107,42 @@ und setze `"current_step"` auf den nächsten pending Step.
 
 ---
 
+## GitHub Integration (optional)
+
+GitHub MCP ist aktiv wenn `state/workflow.json → github.enabled = true`.
+Konfiguration: `github.owner`, `github.repo`, `github.base_branch`.
+
+**Startup:**
+Wenn `github.enabled = false`: Frage den User einmalig:
+"Soll ich dieses Projekt mit einem GitHub Repository verbinden? (owner/repo)"
+Bei Ja: Setze `enabled: true`, `owner`, `repo` in `github` und speichere State.
+
+**Trigger-Tabelle:**
+
+| Zeitpunkt | GitHub-Aktion | MCP-Tool |
+|---|---|---|
+| Nach Implementation approved | Milestone + Issues pro Step erstellen | `create_issue` |
+| Vor jedem Coding Step | Feature-Branch anlegen | `create_branch` |
+| Nach Reviews alle PASSED | Pull Request erstellen | `create_pull_request` |
+| Bei Review FAILED | Issues für CRITICAL/MAJOR Findings | `create_issue` |
+
+**Branch-Namensschema:** `step-{N}-{step_label}` (Leerzeichen → Bindestriche, Kleinschreibung)
+
+**Für komplexe GitHub-Operationen** (PR-Body-Generierung aus Review-Summaries):
+Delegiere an den GitHub Sub-Agenten (`agents/github/prompt.md`).
+
+**Alle GitHub-Referenzen in State speichern:**
+```json
+"github.refs": {
+  "milestone_id": 12,
+  "step_issues": { "1": 101, "2": 102 },
+  "step_branches": { "1": "step-1-user-auth", "2": "step-2-api" },
+  "step_prs": { "1": 7, "2": 8 }
+}
+```
+
+---
+
 ## Fehlerbehandlung
 
 - Sub-Agent produziert keinen Output → Erneut aufrufen mit klarerer Anweisung

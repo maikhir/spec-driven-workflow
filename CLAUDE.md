@@ -18,20 +18,28 @@ specs/spec_outline.md
           ↓
  [Implementation Agent]    ↔  Human Feedback
           ↓  (schreibt coding_steps[] in workflow.json)
-  ┌───────────────────────────────────────────┐
-  │ Für jeden Coding Step N:                  │
-  │                                           │
-  │  [Coding Agent Step N]                    │
-  │          ↓                                │
-  │  [Architecture Review] ──┐                │
-  │  [Security Review]       ├─ alle PASSED?  │
-  │  [Test Review]        ───┘                │
-  │          ↓  ja             ↓  nein        │
-  │  Human Feedback      Coding Agent         │
-  │          ↓           (Fixes) → Reviews    │
-  │  nächster Step                            │
-  └───────────────────────────────────────────┘
+          │
+          ├─ (GitHub) Milestone-Issue + Step-Issues erstellen
+          │
+  ┌───────────────────────────────────────────────────────┐
+  │ Für jeden Coding Step N:                              │
+  │                                                       │
+  │  (GitHub) Feature-Branch anlegen: step-N-{label}      │
+  │          ↓                                            │
+  │  [Coding Agent Step N]                                │
+  │          ↓                                            │
+  │  [Architecture Review] ──┐                            │
+  │  [Security Review]       ├─ alle PASSED?              │
+  │  [Test Review]        ───┘                            │
+  │          ↓  ja                  ↓  nein               │
+  │  (GitHub) PR erstellen    (GitHub) Finding-Issues     │
+  │  Human Feedback           Coding Agent (Fixes)        │
+  │          ↓                → Reviews wiederholen       │
+  │  nächster Step                                        │
+  └───────────────────────────────────────────────────────┘
 ```
+
+> GitHub-Integration ist optional und wird beim Start konfiguriert (`github.enabled` in `state/workflow.json`).
 
 ![Workflow Diagram](workflow_diagram.png)
 
@@ -80,11 +88,12 @@ agents/              → Sub-Agent-Konfigurationen
   architecture_review/
   security_review/
   test_review/
+  github/            → GitHub MCP Agent (PR/Issue-Erstellung)
 specs/               → Input-Dokumente
 outputs/             → Ergebnisse der Agenten
   reviews/step{N}/   → Review-Reports (architecture, security, test)
 feedback/            → Human Feedback Templates
-state/               → Workflow-Zustand
+state/               → Workflow-Zustand (inkl. github.refs)
 ```
 
 ## Start

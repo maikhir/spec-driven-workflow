@@ -73,3 +73,68 @@ Formatiere State als übersichtliche Tabelle:
   Step | Status | Output vorhanden?
 Zeige nach jedem Update.
 ```
+
+---
+
+## GitHub Integration (MCP)
+
+**Voraussetzung:** `state/workflow.json → github.enabled = true`
+
+**Skill: GitHub-Konfiguration prüfen**
+```
+1. Lies github.enabled aus State
+2. Falls false: User fragen ob GitHub-Integration gewünscht
+3. Falls ja: owner, repo, base_branch erfragen und in State schreiben
+4. Falls nein: github.enabled bleibt false, alle GitHub-Skills überspringen
+```
+
+**Skill: Milestone-Issue erstellen (nach Implementation approved)**
+```
+mcp__github__create_issue mit:
+  - owner: github.owner
+  - repo: github.repo
+  - title: "[Milestone] {project}: Implementation Plan"
+  - body: Liste aller coding_steps mit Beschreibung
+  - labels: ["milestone", "spec-driven-workflow"]
+Speichere zurückgegebene issue_number in github.refs.milestone_id
+```
+
+**Skill: Step-Issues erstellen (nach Implementation approved)**
+```
+Für jeden Entry in coding_steps[]:
+  mcp__github__create_issue mit:
+    - title: "[Step {N}] {step_label}"
+    - body: Step-Beschreibung aus implementation_plan.md
+    - labels: ["coding-step", "step-{N}"]
+  Speichere issue_number in github.refs.step_issues["{N}"]
+```
+
+**Skill: Feature-Branch erstellen (vor Coding Step N)**
+```
+Branch-Name: "step-{N}-{step_label}"
+  (step_label: Kleinbuchstaben, Leerzeichen → Bindestriche)
+mcp__github__create_branch mit:
+  - owner: github.owner
+  - repo: github.repo
+  - branch: branch_name
+  - from_branch: github.base_branch
+Speichere branch_name in github.refs.step_branches["{N}"]
+```
+
+**Skill: Pull Request erstellen (nach Reviews alle PASSED)**
+```
+Delegiere an GitHub Sub-Agenten (agents/github/prompt.md):
+  - Übergib: step_number, step_label, branch_name, review_outputs
+  - Agent erstellt PR mit strukturiertem Body
+Speichere pr_number in github.refs.step_prs["{N}"]
+```
+
+**Skill: Finding-Issues erstellen (bei Review FAILED)**
+```
+Für jedes CRITICAL oder MAJOR Finding aus den Review-Reports:
+  mcp__github__create_issue mit:
+    - title: "[{Severity}][Step {N}] {Finding-Titel}"
+    - body: Finding-Beschreibung + Empfehlung aus Review-Report
+    - labels: ["review-finding", "step-{N}", severity.toLowerCase()]
+  Optional: issue dem step_pr zuweisen falls bereits erstellt
+```
