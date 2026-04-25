@@ -1,2 +1,17 @@
 # Claude Code local settings (machine-specific)
 .claude/settings.local.json
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
