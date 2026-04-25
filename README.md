@@ -39,3 +39,51 @@ cat orchestrator/prompt.md
 
 Danach den kopierten Inhalt als erste Nachricht in Claude Code eingeben.
 
+---
+
+## Dashboard
+
+Fortschritt des Workflows live im Browser verfolgen:
+
+```bash
+bash dashboard/serve.sh
+# → öffnet http://localhost:8080/dashboard/ automatisch
+```
+
+**Was das Dashboard zeigt:**
+- Pipeline-Fortschritt (alle Steps mit Status-Indikator)
+- Haupt-Schritte (Spec Writer → Designer → Implementation) mit Output-Links
+- Coding Steps mit Architecture-, Security- und Test-Review-Status
+- GitHub-Refs (Branches, PRs, Issues) wenn GitHub-Integration aktiv ist
+- Auto-Refresh alle 10 Sekunden
+
+Voraussetzung: Python 3 (auf macOS vorinstalliert). Kein npm, kein Node.js nötig.
+
+---
+
+## GitHub Integration (optional)
+
+Das Framework kann optional mit einem GitHub Repository verbunden werden.
+Beim Start fragt der Orchestrator einmalig, ob die Integration aktiviert werden soll.
+
+**Was automatisiert wird:**
+
+| Zeitpunkt | Aktion |
+|---|---|
+| Nach Implementation approved | Milestone-Issue + Step-Issues anlegen |
+| Vor jedem Coding Step | Feature-Branch erstellen (`step-N-{label}`) |
+| Nach Reviews alle PASSED | Pull Request mit Review-Summary erstellen |
+| Bei Review FAILED | Issues für CRITICAL/MAJOR Findings anlegen |
+
+**Konfiguration** in `state/workflow.json`:
+```json
+"github": {
+  "enabled": true,
+  "owner": "dein-user",
+  "repo": "dein-repo",
+  "base_branch": "main"
+}
+```
+
+Benötigt: [GitHub MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/github) konfiguriert in Claude Code.
+

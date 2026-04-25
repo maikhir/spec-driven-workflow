@@ -94,7 +94,20 @@ outputs/             → Ergebnisse der Agenten
   reviews/step{N}/   → Review-Reports (architecture, security, test)
 feedback/            → Human Feedback Templates
 state/               → Workflow-Zustand (inkl. github.refs)
+dashboard/           → Web-Dashboard (index.html + serve.sh)
 ```
+
+## Dashboard
+
+Echtzeit-Übersicht über den Workflow-Fortschritt im Browser.
+
+```bash
+bash dashboard/serve.sh
+# → http://localhost:8080/dashboard/
+```
+
+Zeigt: Pipeline-Fortschritt, Step-Status, Coding-Step-Reviews, GitHub-Refs.
+Aktualisiert sich alle 10 Sekunden automatisch aus `state/workflow.json`.
 
 ## Start
 
