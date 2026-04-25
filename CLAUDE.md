@@ -111,4 +111,11 @@ Aktualisiert sich alle 10 Sekunden automatisch aus `state/workflow.json`.
 
 ## Start
 
-Lies `orchestrator/prompt.md` und folge den Anweisungen dort.
+```bash
+/workflow
+```
+
+Der Slash Command `/workflow` (`.claude/commands/workflow.md`) startet den Orchestrator direkt.
+Er prüft zuerst ob `specs/spec_outline.md` angepasst wurde — falls nicht, stoppt er mit einem Hinweis.
+
+Alternativ manuell: Inhalt von `orchestrator/prompt.md` als erste Nachricht eingeben.
